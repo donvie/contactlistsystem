@@ -36,9 +36,9 @@
                     </template>
                   </q-input>
                 </q-item-label>
-                <q-item-label header class="text-center">{{ favorites_list.length }} Favorites</q-item-label>
+                <q-item-label header class="text-center">{{ friend_requests_list.length }} Friend Requests</q-item-label>
 
-                <span v-for="(favorite, index) in favorites_list" :key="index" @click="selected_contact=favorite">
+                <span v-for="(favorite, index) in friend_requests_list" :key="index" @click="selected_contact=favorite">
                   <contact-item
                     :avatar="favorite.avatar" :name="favorite.name" :position="favorite.position"></contact-item>
                 </span>
@@ -55,7 +55,7 @@
             align="justify"
           >
             <q-tab name="all" icon="person" class="text-capitalize" label="All"></q-tab>
-            <q-tab name="favorites" icon="star" class="text-capitalize" label="Favorites"></q-tab>
+            <q-tab name="favorites" icon="group_add" class="text-capitalize" label="Friend Requests"></q-tab>
           </q-tabs>
         </q-card>
       </div>
@@ -131,9 +131,9 @@
                   </template>
                 </q-input>
               </q-item-label>
-              <q-item-label header class="text-center">{{ favorites_list.length }} Favorites</q-item-label>
+              <q-item-label header class="text-center">{{ friend_requests_list.length }} Friend Requests</q-item-label>
 
-              <span v-for="(favorite, index) in favorites_list" :key="index" @click="selected_contact=favorite">
+              <span v-for="(favorite, index) in friend_requests_list" :key="index" @click="selected_contact=favorite">
                 <contact-item
                   :avatar="favorite.avatar" :name="favorite.name" :position="favorite.position"></contact-item>
               </span>
@@ -149,7 +149,7 @@
           align="justify"
         >
           <q-tab name="all" icon="person" class="text-capitalize" label="All"></q-tab>
-          <q-tab name="favorites" icon="star" class="text-capitalize" label="Favorites"></q-tab>
+          <q-tab name="favorites" icon="group_add" class="text-capitalize" label="Friend Requests"></q-tab>
         </q-tabs>
       </div>
       <transition v-else
@@ -197,32 +197,14 @@
   </q-page>
 </template>
 
-<script>
-import { initializeApp } from 'firebase/app'
-import { getFirestore, collection } from 'firebase/firestore'
-import { createApp } from 'vue'
-import { useCollection } from 'vuefire'
-
-const firebase = initializeApp({
-  apiKey: "AIzaSyCp8_1foMB86eZlaB6AIG5014TkMGky7xQ",
-  authDomain: "contactlistsystem.firebaseapp.com",
-  projectId: "contactlistsystem",
-  storageBucket: "contactlistsystem.appspot.com",
-  messagingSenderId: "235248627729",
-  appId: "1:235248627729:web:67a677de1c67ac193281b0",
-  measurementId: "G-V3HZPVH68Z"
-})
-const db = getFirestore(firebase)
-
-          const usersRef = collection(db, 'users')
-      const users = useCollection(usersRef)
-// import { getFirestore, collection, where, query } from 'firebase/firestore'
-// import { useCollection, useFirebaseAuth } from 'vuefire'
-// import { db } from 'src/config/firebase'
-
-import {defineComponent, defineAsyncComponent} from 'vue';
+<script setup>
+import ContactDetailItem from 'components/ContactDetailItem.vue'
+import ContactItem from 'components/ContactItem.vue'
+    
+import { collection, doc, setDoc, getDocs } from "firebase/firestore"; 
+import { defineAsyncComponent, getCurrentInstance, ref, onMounted } from 'vue';
 import {useQuasar} from "quasar";
-import {ref, onMounted} from 'vue';
+
 const detail_list = [
   {
     icon: 'phone',
@@ -261,7 +243,64 @@ const detail_list = [
     text_color: 'grey-8'
   },
 ];
-const contacts_list = [
+const contacts_list = ref([
+  // {
+  //   name: 'Pratik Patel',
+  //   position: 'Developer',
+  //   avatar: 'https://avatars2.githubusercontent.com/u/34883558?s=400&v=4',
+  //   email: 'pratikpatelpp802@gmail.com',
+  //   company_email: 'pratikpatelpp802@gmail.com',
+  //   website: 'www.test.com',
+  //   phone: '+9910101010',
+  //   secondary_phone: '+9910101010',
+  //   address: 'BB 101 Om Sai Residency Palsana'
+  // },
+  // {
+  //   name: 'Razvan Stoenescu',
+  //   position: 'Developer',
+  //   avatar: 'https://cdn.quasar.dev/team/razvan_stoenescu.jpeg',
+  //   email: 'mailto:razvan@quasar.dev',
+  //   company_email: 'mailto:razvan@quasar.dev',
+  //   website: 'https://github.com/rstoenescu',
+  //   phone: '+1-004-658-0042',
+  //   secondary_phone: '(331) 009-4655 x3147',
+  //   address: '92290 Lisa Cove'
+  // },
+  // {
+  //   name: 'Jeff Galbraith',
+  //   position: 'Developer',
+  //   avatar: 'https://cdn.quasar.dev/team/jeff_galbraith.jpg',
+  //   email: 'mailto:jeff@quasar.dev',
+  //   company_email: 'mailto:jeff@quasar.dev',
+  //   website: 'http://jeffgalbraith.dev/',
+  //   phone: '175.718.4633 x878',
+  //   secondary_phone: '175.718.4633 x878',
+  //   address: 'Calgary, Canada'
+  // },
+  // {
+  //   name: 'Brunhilde Panswick',
+  //   position: 'Administrator',
+  //   avatar: 'https://cdn.quasar.dev/img/avatar2.jpg',
+  //   email: 'test.@quasar.dev',
+  //   company_email: 'test.@quasar.dev',
+  //   website: 'http://test1.dev/',
+  //   phone: '175.718.4633 x878',
+  //   secondary_phone: '175.718.4633 x878',
+  //   address: 'Calgary, Canada'
+  // },
+  // {
+  //   name: 'Winfield Stapforth',
+  //   position: 'Administrator',
+  //   avatar: 'https://cdn.quasar.dev/img/avatar6.jpg',
+  //   email: 'test2.@quasar.dev',
+  //   company_email: 'test.@quasar.dev',
+  //   website: 'http://test2.dev/',
+  //   phone: '175.718.4633 x878',
+  //   secondary_phone: '175.718.4633 x878',
+  //   address: 'Calgary, Canada'
+  // },
+]);
+const friend_requests_list = ref([
   {
     name: 'Pratik Patel',
     position: 'Developer',
@@ -295,101 +334,34 @@ const contacts_list = [
     secondary_phone: '175.718.4633 x878',
     address: 'Calgary, Canada'
   },
-  {
-    name: 'Brunhilde Panswick',
-    position: 'Administrator',
-    avatar: 'https://cdn.quasar.dev/img/avatar2.jpg',
-    email: 'test.@quasar.dev',
-    company_email: 'test.@quasar.dev',
-    website: 'http://test1.dev/',
-    phone: '175.718.4633 x878',
-    secondary_phone: '175.718.4633 x878',
-    address: 'Calgary, Canada'
-  },
-  {
-    name: 'Winfield Stapforth',
-    position: 'Administrator',
-    avatar: 'https://cdn.quasar.dev/img/avatar6.jpg',
-    email: 'test2.@quasar.dev',
-    company_email: 'test.@quasar.dev',
-    website: 'http://test2.dev/',
-    phone: '175.718.4633 x878',
-    secondary_phone: '175.718.4633 x878',
-    address: 'Calgary, Canada'
-  },
-];
-const favorites_list = [
-  {
-    name: 'Pratik Patel',
-    position: 'Developer',
-    avatar: 'https://avatars2.githubusercontent.com/u/34883558?s=400&v=4',
-    email: 'pratikpatelpp802@gmail.com',
-    company_email: 'pratikpatelpp802@gmail.com',
-    website: 'www.test.com',
-    phone: '+9910101010',
-    secondary_phone: '+9910101010',
-    address: 'BB 101 Om Sai Residency Palsana'
-  },
-  {
-    name: 'Razvan Stoenescu',
-    position: 'Developer',
-    avatar: 'https://cdn.quasar.dev/team/razvan_stoenescu.jpeg',
-    email: 'mailto:razvan@quasar.dev',
-    company_email: 'mailto:razvan@quasar.dev',
-    website: 'https://github.com/rstoenescu',
-    phone: '+1-004-658-0042',
-    secondary_phone: '(331) 009-4655 x3147',
-    address: '92290 Lisa Cove'
-  },
-  {
-    name: 'Jeff Galbraith',
-    position: 'Developer',
-    avatar: 'https://cdn.quasar.dev/team/jeff_galbraith.jpg',
-    email: 'mailto:jeff@quasar.dev',
-    company_email: 'mailto:jeff@quasar.dev',
-    website: 'http://jeffgalbraith.dev/',
-    phone: '175.718.4633 x878',
-    secondary_phone: '175.718.4633 x878',
-    address: 'Calgary, Canada'
-  },
-];
-export default defineComponent({
-  name: "ContactList",
-  components: {
-    ContactDetailItem: defineAsyncComponent(() => import('components/ContactDetailItem.vue')),
-    ContactItem: defineAsyncComponent(() => import('components/ContactItem.vue'))
-  },
-  setup() {
-      console.log('users', users)
-    const selected_contact = ref({})
-    const $q = useQuasar()
-    const size = ref({ width: '200px', height: '200px' });
+]);
 
-    onMounted(async () => {
+const app = getCurrentInstance().appContext.config.globalProperties;
 
+const $q = useQuasar()
+const size = ref({ width: '200px', height: '200px' });
 
-      if (!$q.screen.lt.sm) {
-        // const filteredProjects = ref(null)
-        // const users = await useCollection(collection(db, 'users'))
-        // filteredProjects.value = users;
-        // console.log('users', filteredProjects.value[0])
-        // selected_contact.value = filteredProjects.value[0];
-      }
-    })
+const tab = ref('all')
+const search = ref('')
+const selected_contact = ref({})
 
+function onResize(size_dynamic) {
+  size.value = size_dynamic;
+}
 
-    return {
-      tab: ref('all'),
-      search: ref(''),
-      size,
-      contacts_list,
-      favorites_list,
-      selected_contact,
-      detail_list,
-      onResize(size_dynamic) {
-        size.value = size_dynamic;
-      },
-    }
+async function getUsers () {
+ const querySnapshot = await getDocs(collection(app.$db, "users"));
+  querySnapshot.forEach((doc) => {
+    console.log(doc.id, " => ", doc.data());
+    contacts_list.value.push(doc.data())
+  });
+
+  selected_contact.value = contacts_list.value[0];
+}
+
+onMounted(() => {
+  if (!$q.screen.lt.sm) {
+    getUsers()
   }
 })
 </script>

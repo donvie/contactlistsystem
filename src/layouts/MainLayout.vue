@@ -1,6 +1,6 @@
 <template>
   <q-layout view="hHh LpR fFf">
-    <q-header elevated>
+    <q-header bordered>
       <q-toolbar>
         <q-btn
           flat
@@ -16,15 +16,21 @@
           Contact List System <span class="text-caption">Quasar v{{ $q.version }}</span>
         </q-toolbar-title>
 
-        <q-btn-dropdown color="white" icon="account_circle" size="17px" flat label="Dropdown Button">
+        <q-btn-dropdown color="white" icon="account_circle" size="17px" flat :label="user.name">
           <q-list>
-            <q-item to="profile" clickable v-close-popup @click="onItemClick">
+            <q-item exact to="/" clickable v-close-popup>
+              <q-item-section>
+                <q-item-label>Home</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item exact to="profile" clickable v-close-popup>
               <q-item-section>
                 <q-item-label>My Profile</q-item-label>
               </q-item-section>
             </q-item>
 
-            <q-item to="login" clickable v-close-popup @click="onItemClick">
+            <q-item exact clickable v-close-popup @click="logOut()">
               <q-item-section>
                 <q-item-label>Logout</q-item-label>
               </q-item-section>
@@ -37,6 +43,7 @@
     <q-drawer
       v-model="leftDrawerOpen"
       bordered
+      :width="345"
     >
       <q-list>
         <q-item-label
@@ -54,60 +61,35 @@
     </q-drawer>
 
     <q-page-container>
-      <!-- <pre>{{user}}</pre> -->
       <router-view />
     </q-page-container>
   </q-layout>
 </template>
 
 <script>
-import { useCurrentUser } from 'vuefire'
-const user = useCurrentUser()
+import { useRouter } from 'vue-router'
+import { LocalStorage } from 'quasar'
 import { defineComponent, ref } from 'vue'
 import EssentialLink from 'components/EssentialLink.vue'
 
 const linksList = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
+    title: 'Website',
+    caption: 'https://donvie.github.io/website/',
+    icon: 'language',
+    link: 'https://donvie.github.io/website/'
   },
   {
     title: 'Github',
-    caption: 'github.com/quasarframework',
+    caption: 'https://github.com/donvie',
     icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
+    link: 'https://github.com/donvie'
   },
   {
     title: 'Facebook',
-    caption: '@QuasarFramework',
+    caption: 'https://www.facebook.com/heridonvi.tagaban/',
     icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
+    link: 'https://www.facebook.com/heridonvi.tagaban/'
   }
 ]
 
@@ -119,14 +101,19 @@ export default defineComponent({
   },
 
   setup () {
+    const router = useRouter()
     const leftDrawerOpen = ref(false)
 
     return {
-      user,
+      user: LocalStorage.getItem('user'),
       essentialLinks: linksList,
       leftDrawerOpen,
       toggleLeftDrawer () {
         leftDrawerOpen.value = !leftDrawerOpen.value
+      },
+      logOut () {
+        LocalStorage.clear('user')
+        router.push('/login');
       }
     }
   }

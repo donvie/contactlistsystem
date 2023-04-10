@@ -1,15 +1,17 @@
 <template>
   <q-page>
+    <!-- <pre>{{user}}</pre> -->
     <div class="row q-col-gutter-sm q-ma-xs">
+      <div class="col-12">
+        <q-btn to="/" label="Go back home" type="submit" icon="arrow_back" color="primary"/>
+      </div>
       <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
         <q-card class="my-card" flat bordered>
           <q-card-section horizontal>
             <q-card-section class="q-pt-xs">
-              <div class="text-overline">US Region</div>
-              <div class="text-h5 q-mt-sm q-mb-xs">Mayank Patel</div>
+              <div class="text-h5 q-mt-sm q-mb-xs">{{user.name}}</div>
               <div class="text-caption text-grey">
-                Sales and Marketing Executive | Graduate and past committee | Keynote speaker on Selling and Recruiting
-                Topics
+                {{user.email}}
               </div>
             </q-card-section>
 
@@ -24,7 +26,7 @@
           <q-separator/>
 
           <q-card-section>
-            Assessing clients needs and present suitable promoted products. Liaising with and persuading targeted doctors to prescribe our products utilizing effective sales skills.
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit dicta laborum fuga tempora dolorum earum eligendi quos eveniet ipsam, expedita maiores iste optio unde ex quaerat sunt consequuntur laboriosam quas.
           </q-card-section>
         </q-card>
       </div>
@@ -36,22 +38,8 @@
             >
               <q-input
                 filled
-                v-model="user.first_name"
-                label="First Name"
-              />
-
-              <q-input
-                filled
-                v-model="user.last_name"
-                label="Last Name"
-
-              />
-
-              <q-input
-                filled
-                v-model="user.age"
-                label="Age"
-
+                v-model="user.name"
+                label="Name"
               />
 
               <q-input
@@ -68,6 +56,20 @@
 
               />
 
+              <q-input
+                filled
+                v-model="user.address"
+                label="Address"
+
+              />
+
+              <q-input
+                filled
+                v-model="user.position"
+                label="Position"
+
+              />
+
               <div>
                 <q-btn label="Update" type="submit" color="primary"/>
               </div>
@@ -79,20 +81,11 @@
   </q-page>
 </template>
 
-<script>
-    export default {
-        data() {
-            return {
-                user: {
-                    first_name: 'Mayank',
-                    last_name: 'Patel',
-                    age: 30,
-                    email: 'm******@****.com',
-                    phone: '98******23'
-                },
-            }
-        },
-    }
+<script setup>
+import { LocalStorage } from 'quasar'
+import { ref } from 'vue'
+
+const user = ref(LocalStorage.getItem('user'))
 </script>
 
 <style scoped>

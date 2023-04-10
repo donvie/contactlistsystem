@@ -1,9 +1,6 @@
 import { boot } from 'quasar/wrappers'
 import axios from 'axios'
 
-import { firebaseApp } from 'src/config/firebase'
-
-import { VueFire, VueFireAuth } from 'vuefire'
 // Be careful when using SSR for cross-request state pollution
 // due to creating a Singleton instance here;
 // If any client changes this (global) instance, it might be a
@@ -13,16 +10,6 @@ import { VueFire, VueFireAuth } from 'vuefire'
 const api = axios.create({ baseURL: 'https://api.example.com' })
 
 export default boot(({ app }) => {
-  
-  app
-  .use(VueFire, {
-    // imported above but could also just be created here
-    firebaseApp,
-    modules: [
-      // we will see other modules later on
-      VueFireAuth(),
-    ],
-  })
   // for use inside Vue files (Options API) through this.$axios and this.$api
 
   app.config.globalProperties.$axios = axios

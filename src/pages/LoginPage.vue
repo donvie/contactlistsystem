@@ -11,7 +11,7 @@
           <q-card-section>
             <div class="text-center q-pt-lg">
               <div class="col text-h6 ellipsis">
-                Log in
+                {{ isRegisterMode ?  'Sign up' : 'Log in' }}
               </div>
             </div>
           </q-card-section>
@@ -19,6 +19,38 @@
             <q-form
               class="q-gutter-md"
             >
+              <q-input
+                filled
+                v-if="isRegisterMode"
+                v-model="name"
+                label="Name"
+                lazy-rules
+              />
+
+              <q-input
+                filled
+                v-model="website"
+                label="Website"
+                lazy-rules
+                v-if="isRegisterMode"
+              />
+
+              <q-input
+                filled
+                v-if="isRegisterMode"
+                v-model="phone"
+                label="Phone"
+                lazy-rules
+              />
+
+              <q-input
+                filled
+                v-if="isRegisterMode"
+                v-model="address"
+                label="Address"
+                lazy-rules
+              />
+
               <q-input
                 filled
                 v-model="email"
@@ -35,9 +67,10 @@
 
               />
 
-              <div class="text-right q-gutter-xs">
-                <q-btn @click="signup()" label="Register" type="button" color="primary"/>
-                <q-btn @click="signIn()" label="Login" type="button" color="primary"/>
+              <div class="justify-between row q-gutter-xs">
+                <q-btn outline @click="isRegisterMode = !isRegisterMode" :label="isRegisterMode ? 'Go back to login' : 'Create an account'" type="button" color="primary"/>
+                <q-btn v-if="isRegisterMode" @click="signUp()" label="Register" type="button" color="primary"/>
+                <q-btn v-else @click="signIn()" label="Login" type="button" color="primary"/>
               </div>
             </q-form>
           </q-card-section>
@@ -47,47 +80,86 @@
   </q-layout>
 </template>
 
-<script>
+<script setup>
+import { LocalStorage } from 'quasar'
 import { useRouter } from 'vue-router'
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from 'src/config/firebase'
+import { collection, addDoc, doc, getDoc, setDoc } from "firebase/firestore"; 
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { ref, getCurrentInstance } from 'vue'
 
-import {defineComponent} from 'vue'
-import {ref} from 'vue'
-export default defineComponent({
-  setup() {
-    const router = useRouter()
+const router = useRouter()
 
-    const signIn = () => {
-      signInWithEmailAndPassword(auth, '12heridonvitagaban@gmail.com', 'Donvie12').then((userCredential) => {
-        const user = userCredential.user;
-        console.log('user', user)
-        router.push('/');
-      }).catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log('error', error)
-      });
-    }
-    const signUp = () => {
-      createUserWithEmailAndPassword(auth, 'heridonvi_tagaban12@yahoo.com', 'Donvie12').then((userCredential) => {
-        const user = userCredential.user;
-        console.log('user', user)
-      }).catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log('error', error)
-      });
-    }
+const app = getCurrentInstance().appContext.config.globalProperties;
+const name = ref('')
+const website = ref('')
+const phone = ref('')
+const address = ref('')
+const email = ref('heridonvi_tagaban12@yahoo.com')
+const password = ref('Donvie12')
+const isRegisterMode = ref(false)
 
-    return {
-      signIn,
-      signUp,
-      email: ref('heridonvi_tagaban12@yahoo.com'),
-      password: ref('Donvie12')
-    }
+async function signIn() {
+  signInWithEmailAndPassword(app.$auth, email.value, password.value).then((userCredential) => {
+    const user = userCredential.user;
+    console.log('user', user)
+    isUserExists(user)
+
+  }).catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.log('error', error)
+  });
+}
+
+async function signUp() {
+  createUserWithEmailAndPassword(app.$auth, email.value, password.value).then((userCredential) => {
+    const user = userCredential.user;
+    console.log('user', user)
+    addUser(user)
+  }).catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.log('error', error)
+  });
+}
+
+async function isUserExists(user) {
+  console.log('user', user)
+  const docRef = doc(app.$db, "users", user.uid);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    console.log("Document data:", docSnap.data());
+    setUser(docSnap.data())
+  } else {
+    addUser(user)
+    console.log("No such document!");
   }
-})
+}
+
+async function addUser (user) {
+  const currentUser = {
+    name: name.value,
+    position: '',
+    avatar: `https://robohash.org/${name.value}`,
+    email: email.value,
+    company_email: email.value,
+    website: website.value,
+    phone: phone.value,
+    secondary_phone:  phone.value,
+    address: address.value,
+    uid: user.uid
+  }
+
+  const docRef = doc(app.$db, 'users', user.uid);
+  await setDoc(docRef, currentUser, { merge: true });
+  setUser(currentUser)
+}
+
+function setUser (user) {
+  LocalStorage.set('user', user)
+  router.push('/');
+}
 </script>
 
 <style>
