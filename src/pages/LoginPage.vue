@@ -81,6 +81,7 @@
 </template>
 
 <script setup>
+import { Notify } from 'quasar'
 import { LocalStorage } from 'quasar'
 import { useRouter } from 'vue-router'
 import { collection, addDoc, doc, getDoc, setDoc } from "firebase/firestore"; 
@@ -94,8 +95,8 @@ const name = ref('')
 const website = ref('')
 const phone = ref('')
 const address = ref('')
-const email = ref('heridonvi_tagaban12@yahoo.com')
-const password = ref('Donvie12')
+const email = ref('')
+const password = ref('')
 const isRegisterMode = ref(false)
 
 async function signIn() {
@@ -130,6 +131,10 @@ async function isUserExists(user) {
 
   if (docSnap.exists()) {
     console.log("Document data:", docSnap.data());
+    Notify.create({
+      type: 'positive',
+      message: 'Success!'
+    })
     setUser(docSnap.data())
   } else {
     addUser(user)
@@ -140,7 +145,7 @@ async function isUserExists(user) {
 async function addUser (user) {
   const currentUser = {
     name: name.value,
-    position: '',
+    position: 'user',
     avatar: `https://robohash.org/${name.value}`,
     email: email.value,
     company_email: email.value,
@@ -148,12 +153,16 @@ async function addUser (user) {
     phone: phone.value,
     secondary_phone:  phone.value,
     address: address.value,
-    uid: user.uid
+    uid: user.uid,
   }
 
   const docRef = doc(app.$db, 'users', user.uid);
   await setDoc(docRef, currentUser, { merge: true });
   setUser(currentUser)
+  Notify.create({
+    type: 'positive',
+    message: 'Success!'
+  })
 }
 
 function setUser (user) {

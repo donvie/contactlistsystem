@@ -1,6 +1,5 @@
 <template>
   <q-page>
-    <!-- <pre>{{user}}</pre> -->
     <div class="row q-col-gutter-sm q-ma-xs">
       <div class="col-12">
         <q-btn to="/" label="Go back home" type="submit" icon="arrow_back" color="primary"/>
@@ -18,15 +17,9 @@
             <q-card-section class="col-5 flex flex-center">
               <q-img
                 class="rounded-borders"
-                src="https://cdn.quasar.dev/img/boy-avatar.png"
+                :src="user.avatar"
               />
             </q-card-section>
-          </q-card-section>
-
-          <q-separator/>
-
-          <q-card-section>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit dicta laborum fuga tempora dolorum earum eligendi quos eveniet ipsam, expedita maiores iste optio unde ex quaerat sunt consequuntur laboriosam quas.
           </q-card-section>
         </q-card>
       </div>
@@ -63,15 +56,8 @@
 
               />
 
-              <q-input
-                filled
-                v-model="user.position"
-                label="Position"
-
-              />
-
               <div>
-                <q-btn label="Update" type="submit" color="primary"/>
+                <q-btn @click="updateProfile()" label="Update" type="submit" color="primary"/>
               </div>
             </q-form>
           </q-card-section>
@@ -82,10 +68,25 @@
 </template>
 
 <script setup>
+import { Notify } from 'quasar'
+import { collection, doc, setDoc, getDocs, deleteDoc, addDoc, query, where, updateDoc } from "firebase/firestore"; 
 import { LocalStorage } from 'quasar'
-import { ref } from 'vue'
+import { ref, getCurrentInstance } from 'vue'
+const app = getCurrentInstance().appContext.config.globalProperties;
 
 const user = ref(LocalStorage.getItem('user'))
+
+function updateProfile () {
+  console.log('user.value', user.value)
+  const docRef = doc(app.$db, 'users', user.value.uid);
+  console.log(docRef)
+  setDoc(docRef, user.value, { merge: true });
+  LocalStorage.set('user', user.value)
+  Notify.create({
+    type: 'positive',
+    message: 'Success!'
+  })
+}
 </script>
 
 <style scoped>
